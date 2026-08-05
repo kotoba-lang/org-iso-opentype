@@ -55,4 +55,9 @@
      :magic-ok?    (and head (= (be bv (+ head 12) 4) head-magic))
      :units-per-em (when head (be bv (+ head 18) 2))
      :num-glyphs   (when maxp (be bv (+ maxp 4) 2))
-     :family       (when nm (name-family bv nm))}))
+     :family       (when nm (name-family bv nm))
+     ;; Kept so a caller can reach `opentype.cmap` without re-parsing the
+     ;; directory. `:tables` is a SET of names and answers whether a table
+     ;; exists; this answers where it is, which is the question anybody who
+     ;; got a yes will ask next.
+     :table-offsets (into {} (map (fn [[k v]] [k (:offset v)])) tables)}))
