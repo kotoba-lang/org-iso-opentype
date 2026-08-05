@@ -27,3 +27,28 @@ delegates here for the same metadata.
 ```sh
 clojure -M:test
 ```
+
+## `cmap`, and the reverse direction (`opentype.cmap`)
+
+Forwards is what a layout engine wants. Backwards is what anybody holding
+glyph ids and no characters wants — and that is a real position: a PDF
+composite font with `Identity-H` puts GLYPH IDS in the content stream, so the
+text of the page is unreadable without the font that drew it. `/ToUnicode` is
+how a producer is supposed to say what those ids mean, and plenty do not ship
+one (measured at 3 of 30 real documents, 550 runs in one LaTeX-CJK paper).
+
+For an embedded subset font the answer is in the file:
+
+```clojure
+(let [uni (cmap/unicode->gid font-bytes cmap-offset)]
+  (cmap/gid->unicode uni))      ;; => {glyph-id code-point}
+```
+
+Not a heuristic — the font's own table read the other way. Format 12 is
+preferred over format 4 so anything outside the BMP survives; a (3,0) symbol
+subtable is read and **marked**, because its code points are private-use and
+mean nothing on their own. The lowest code point wins a collision, which is
+what keeps `A` from coming back as U+F041.
+
+`parse` now also returns `:table-offsets`, so a caller that got a yes from
+`:tables` can find out where.
