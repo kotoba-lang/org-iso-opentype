@@ -57,7 +57,7 @@
 ;;     --target wasm32-browser --output directory.wasm
 
 (ns opentype.directory
-  (:export [init offer-header offer-entry
+  (:export [main init offer-header offer-entry
             phase reason
             needs-at needs-count
             sfnt-version table-count entries-seen
@@ -268,3 +268,39 @@
 (defn saw-maxp? [state :document] :bool (db state :maxp))
 (defn saw-name? [state :document] :bool (db state :name))
 (defn saw-cmap? [state :document] :bool (db state :cmap))
+
+;; --- the artifact's own conformance check ------------------------------------------
+;;
+;; `main` is the browser profile's entry point -- `runtime/browser-host.mjs`
+;; refuses to instantiate a module without one -- and it is not a stub. It
+;; checks the two things a directory reader has to get right before it has
+;; read anything: a fresh state wants the twelve-byte header, and a
+;; directory entry offered BEFORE that header is ignored rather than folded
+;; in.
+;;
+;; ## Why it does not offer the header
+;;
+;; It cannot, today. Calling `offer-header` from another function in this
+;; module is an `internal compiler error` (exit 70, no detail), measured
+;; against amu 2cb7d3f on 2026-08-31. `offer-entry` in exactly the same
+;; position compiles, and so does `init`, and the size of the byte vector
+;; does not matter -- one element fails the same way twelve do.
+;; `directory_artifact_test.clj` holds both halves of that control so the
+;; claim is executed rather than written down, and so this comment stops
+;; being true the moment the bug is fixed.
+;;
+;; The suite offers the header on the interpreter and through the compiled
+;; artifact from the HOST side, where the call is a normal export
+;; invocation and works. What is missing is only the artifact's ability to
+;; check that part of itself.
+
+(defn main [] :i64
+  (let [s (init (document-map :file-length (document-i64 4556)))]
+    (cond
+      (if (= (phase s) :want-header) false true) 1
+      (if (= (needs-count s) 12) false true) 2
+      ;; §4.1 order: nothing is a directory entry until the header says how
+      ;; many there are.
+      (if (= (phase (offer-entry s (document-vector (document-i64 0)))) :want-header)
+        false true) 3
+      :else 0)))
