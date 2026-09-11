@@ -25,7 +25,7 @@ delegates here for the same metadata.
 ## Test
 
 ```sh
-clojure -M:test
+kbb -M:test
 ```
 
 ## `cmap`, and the reverse direction (`opentype.cmap`)
