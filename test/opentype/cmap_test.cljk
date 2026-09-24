@@ -4,7 +4,7 @@
   Fonts are built here rather than vendored: a hand-built subtable says
   exactly which byte means what, and a real font's cmap is a black box whose
   right answer nobody in this test knows."
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [opentype.cmap :as cmap]))
 
 (defn- u16 [n] [(bit-and (bit-shift-right n 8) 0xff) (bit-and n 0xff)])

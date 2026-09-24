@@ -2,7 +2,7 @@
   "SFNT decode validated against a real OFL TrueType font (NotoSansLycian).
    The 'head' table magicNumber (0x5F0F3CF5) is a fixed constant, so reading it
    correctly proves the table-directory + offset parsing end to end."
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [clojure.java.io :as io]
             [opentype.core :as opentype]))
 
