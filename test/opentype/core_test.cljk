@@ -3,7 +3,7 @@
    The 'head' table magicNumber (0x5F0F3CF5) is a fixed constant, so reading it
    correctly proves the table-directory + offset parsing end to end."
   (:require [kotoba.test :refer [deftest is testing]]
-            [clojure.java.io :as io]
+            [kotoba.io :as io]
             [opentype.core :as opentype]))
 
 (defn- rd [p] (mapv #(bit-and (int %) 0xff)
