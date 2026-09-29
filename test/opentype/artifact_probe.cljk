@@ -7,7 +7,7 @@
 ;; `directory_artifact_test.clj` can hold it against the interpreter.
 ;;
 ;; nbb rather than a `.mjs`: this workspace does not add raw JavaScript
-;; harnesses (CLAUDE.md, runtime priority).
+;; harnesses (AGENTS.md, runtime priority).
 ;;
 ;; This guest is a STREAM -- `init`, the header, then one directory entry at
 ;; a time, each returning the next state -- so the probe hands the guest's
